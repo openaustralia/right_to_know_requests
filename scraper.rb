@@ -1,25 +1,30 @@
-# This is a template for a Ruby scraper on morph.io (https://morph.io)
-# including some code snippets below that you should find helpful
+require "scraperwiki"
+require "json"
+require "open-uri"
 
-# require 'scraperwiki'
-# require 'mechanize'
-#
-# agent = Mechanize.new
-#
-# # Read in a page
-# page = agent.get("http://foo.com")
-#
-# # Find somehing on the page using css selectors
-# p page.at('div.content')
-#
-# # Write out to the sqlite database using scraperwiki library
-# ScraperWiki.save_sqlite(["name"], {"name" => "susan", "occupation" => "software developer"})
-#
-# # An arbitrary query against the database
-# ScraperWiki.select("* from data where 'name'='peter'")
+base_url = "https://www.righttoknow.org.au"
+url = "#{base_url}/request/3.json"
 
-# You don't have to do things with the Mechanize or ScraperWiki libraries.
-# You can use whatever gems you want: https://morph.io/documentation/ruby
-# All that matters is that your final data is written to an SQLite database
-# called "data.sqlite" in the current working directory which has at least a table
-# called "data".
+begin
+  request = JSON.parse(open(url).read, symbolize_names: true)
+rescue OpenURI::HTTPError
+  puts "Skipping missing request #{url}"
+end
+
+record = {
+  request_url: "#{base_url}/request/#{request[:url_title]}",
+  title: request[:title],
+  created_at: request[:created_at],
+  display_status: request[:display_status],
+  described_state: request[:described_state],
+  user_name: request[:user][:name],
+  user_url: "#{base_url}/user/#{request[:user][:url_name]}",
+  public_body_name: request[:public_body][:name],
+  public_body_url: "#{base_url}/body/#{request[:public_body][:url_name]}",
+  public_body_tags: request[:public_body][:tags].collect { |t| t.first }.join(" "),
+  response_count: request[:info_request_events].select { |e| e[:event_type] == "response" }.count
+}
+
+p record
+
+# ScraperWiki.sqlite_save([])
