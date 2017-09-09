@@ -2,8 +2,8 @@ require "scraperwiki"
 require "json"
 require "open-uri"
 
-FETCH_FROM_REQUEST_ID = 2246
-FETCH_TO_REQUEST_ID = 2373
+FETCH_FROM_REQUEST_ID = 2373
+FETCH_TO_REQUEST_ID = 4078
 base_url = "https://www.righttoknow.org.au"
 
 (FETCH_FROM_REQUEST_ID..FETCH_TO_REQUEST_ID).each do |id|
